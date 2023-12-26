@@ -1,5 +1,5 @@
 # PRCARH - PLATAFORMA DE RECETAS DE COMIDA
-Aplicación de una Platadorma de Recetas de comida con autenticación de usuarios.
+Aplicación de una Plataforma de Recetas de comida con autenticación de usuarios.
 
 <p align="left">
    <img src="https://img.shields.io/badge/STATUS-EN%20DESAROLLO-green">
