@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <body>
+        <nav>
+            <div class="navbar">
+                <a href="/">HOME</a>
+            </div>
+        </nav>
+        <div class="form">
+            <form action="/singup" method="POST">
+                <h3 class="texto">Formulario de Registro</h3>
+                <p class="etiqueta">Nombre de Usuario</p>
+                <input type="text" class="control" name="username" placeholder="USERNAME" autofocus>
+                <p class="etiqueta">Contraseña</p>
+                <input type="password" class="control" name="password" placeholder="PASSWORD">
+                <button type="submit" class="boton">Registrar</button>
+                <a href="/login">¿Ya tienes cuenta?</a>
+                {% if mensaje %}
+                    <p class="alerta">{{mensaje}}</p>
+                {% endif %}
+            </form>
+        </class>
+    </body>
+{% endblock %}

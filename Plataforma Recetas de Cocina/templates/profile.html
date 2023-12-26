@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <body>
+        <nav class="navbar2">
+            <a class="a" href="/return">FEED</a>
+            <a class="b" href="/logout">CERRAR SESION</a>
+        </nav>
+        <div>
+            <h1 class="textoperfil">
+                {% if current_user.is_authenticated %}
+                    Bienvenido a tu perfil {{ current_user.username }}!
+                {% endif %}
+            </h1>
+        </div>
+    </body>
+{% endblock %}

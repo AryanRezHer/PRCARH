@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <body>
+        <nav class="navbar2">
+            <a class="a" href="/addreceta">NUEVA RECETA</a>
+            <a class="b" href="{{ url_for('usuario') }}">PERFIL</a>
+        </nav>
+        {% for i in recetas %}
+                <ul>
+                    <li>
+                        <div class="container">
+                            <p>Titulo: {{i.titulo}} </p>
+                            <p>Descripcion: {{i.receta}} </p>
+                            <p>Autor: {{i.autor}}</p>
+                            {% if current_user.id == i.usuario_id %}
+                                <a class="boton" href="/eliminar/{{i.id}}">Borrar Receta</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            {% endfor %}
+    </body>
+{% endblock%}

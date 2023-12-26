@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <body>
+        <nav class="navbar2">
+            <a class="a" href="/return">FEED</a>
+            <a class="b" href="{{ url_for('usuario') }}">PERFIL</a>
+        </nav>
+        <form class="form" action="/feed/addreceta" method="POST">
+            <p>Titulo de La receta</p>
+            <input type="text" name="titulo" placeholder="Titulo" class="control">
+            <p>Receta</p>
+            <textarea type="text" name="receta" placeholder="Descripcion Receta" class="control2"></textarea>
+            <p>Nombre Autor</p>
+            <input type="text" name="autor" placeholder="autor" class="control">
+            <button type="submit" class="boton">
+                Añadir Receta
+            </button>
+        </form>
+    </body>
+{% endblock %}
