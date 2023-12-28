@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <body>
+        <nav class="navbar navbar-expand-lg bg-dark">
+            <div class="container-fluid">
+                <a class="a text-warning" href="/addreceta">NUEVA RECETA</a>
+                <form class="d-flex" role="search" action="/search" method="POST">
+                    <input class="form-control me-2" name="buscador" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>       
+                <a class="b text-warning" href="{{ url_for('usuario') }}">PERFIL</a>
+            </div>
+        </nav>
+        {% if recetas %}
+        {% for i in recetas %}
+                <ul>
+                    <li>
+                        <div class="container">
+                            <p>Titulo: {{i.titulo}} </p>
+                            <p>Descripcion: {{i.receta}} </p>
+                            <p>Autor: {{i.autor}}</p>
+                            {% if current_user.id == i.usuario_id %}
+                                <a class="boton" href="/eliminar/{{i.id}}">Borrar Receta</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            {% endfor %}
+            {% else %}
+                <p class="alerta">{{mensaje}}</p>
+            {% endif %}
+            <div>
+                <a class="boton2" href="{{ url_for('volver') }}">Cancelar busqueda</a>
+            </div>
+        </body>
+{% endblock%}

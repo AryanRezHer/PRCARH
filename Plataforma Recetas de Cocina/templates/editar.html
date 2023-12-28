@@ -8,15 +8,15 @@
                 <a class="b text-warning" href="{{ url_for('usuario') }}">PERFIL</a>
             </div>
         </nav>
-        <form class="form-addreceta" action="/feed/addreceta" method="POST">
+        <form class="form-addreceta" action="/feed/editartarea/{{id}}" method="POST">
             <p>Titulo de La receta</p>
-            <input type="text" name="titulo" placeholder="Titulo" class="control">
+            <input type="text" name="titulo" placeholder="Titulo" class="control" value="{{ recetas.titulo}}">
             <p>Ingredientes</p>
             <textarea type="text" name="ingredientes" placeholder="Ingredientes" class="control2"></textarea>
             <p>Descripcion Receta</p>
-            <textarea type="text" name="receta" placeholder="Descripcion Receta" class="control2"></textarea>
+            <textarea type="text" name="receta" placeholder="Descripcion Receta" class="control2">{{ recetas.receta }}</textarea>
             <p>Nombre Autor</p>
-            <input type="text" name="autor" placeholder="autor" class="control">
+            <input type="text" name="autor" placeholder="autor" class="control" value="{{ recetas.autor }}">
             <button type="submit" class="boton">
                 Añadir Receta
             </button>

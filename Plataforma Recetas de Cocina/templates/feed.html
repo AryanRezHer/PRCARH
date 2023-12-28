@@ -2,23 +2,33 @@
 
 {% block content %}
     <body>
-        <nav class="navbar2">
-            <a class="a" href="/addreceta">NUEVA RECETA</a>
-            <a class="b" href="{{ url_for('usuario') }}">PERFIL</a>
+        <nav class="navbar navbar-expand-lg bg-dark">
+            <div class="container-fluid">
+                <a class="a text-warning" href="/addreceta">NUEVA RECETA</a>
+                <form class="d-flex" role="search" action="/search" method="POST">
+                    <input class="form-control me-2" name="buscador" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>       
+                <a class="b text-warning" href="{{ url_for('usuario') }}">PERFIL</a>
+            </div>
         </nav>
-        {% for i in recetas %}
-                <ul>
-                    <li>
-                        <div class="container">
-                            <p>Titulo: {{i.titulo}} </p>
-                            <p>Descripcion: {{i.receta}} </p>
-                            <p>Autor: {{i.autor}}</p>
-                            {% if current_user.id == i.usuario_id %}
-                                <a class="boton" href="/eliminar/{{i.id}}">Borrar Receta</a>
-                            {% endif %}
-                        </div>
-                    </li>
-                </ul>
-            {% endfor %}
+            {% for i in recetas %}
+                    <ul>
+                        <li>
+                            <div class="container">
+                                    <p class="fw-bold">Titulo:</p><p>{{i.titulo}}</p>
+                                    <p class="fs-4 fw-bold">Ingredientes:</p><p>{{i.ingredientes}}</p>
+                                    <p class="fs-4 fw-bold">Descripcion Receta:</p><p>{{i.receta}}</p>
+                                    <p class="fw-bold">Autor:</p><p>{{i.autor}}</p>
+                                {% if current_user.id == i.usuario_id %}
+                                <div class="recto">
+                                    <a class="botonrojo" href="/eliminar/{{i.id}}">Borrar Receta</a>
+                                    <a class="botonverde" href="/editar/{{i.id}}">Editar Receta</a>
+                                </div>
+                                    {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                {% endfor %}
     </body>
 {% endblock%}

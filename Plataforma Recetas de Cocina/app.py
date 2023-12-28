@@ -23,6 +23,7 @@ class usuarios(db.Model, UserMixin):
 class recetas(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(50), nullable=False)
+    ingredientes = db.Column(db.String(200), nullable=False)
     receta = db.Column(db.String(200), nullable=False)
     autor = db.Column(db.String(50), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
@@ -73,6 +74,18 @@ def usuario():
 def volver():
     return redirect(url_for('feed', id=current_user.id))
 
+@app.route('/search', methods=['GET','POST'])
+@login_required
+def buscador():
+    if request.method == 'POST':
+        busqueda = request.form['buscador']
+        mensaje = 'No hemos encontrado ningun resultado como ' + busqueda
+        receta = recetas.query.filter(recetas.titulo.ilike(f"%{busqueda}%") | recetas.autor.ilike(f"%{busqueda}%")).all()
+        return render_template('buscador.html', recetas = receta, mensaje=mensaje)
+        
+    return redirect(url_for('volver'))
+
+
 @app.route('/addreceta')
 @login_required
 def new_receta():
@@ -81,24 +94,45 @@ def new_receta():
 @app.route('/feed/<int:id>')
 @login_required
 def feed(id):
-     receta = recetas.query.all()
-     return render_template('feed.html', recetas = receta)
+    receta = recetas.query.all()
+    return render_template('feed.html', recetas = receta)
 
 @app.route('/feed/addreceta', methods=['GET','POST'])
 @login_required
 def add():
     try:
         titulo = request.form['titulo']
+        ingredientes = request.form['ingredientes']
         receta = request.form['receta']
         autor = request.form['autor']
         if titulo and receta:
-            post = recetas(titulo=titulo,receta=receta,autor = autor,usuario_id=current_user.id)
+            post = recetas(titulo=titulo,ingredientes=ingredientes,receta=receta,autor = autor,usuario_id=current_user.id)
             db.session.add(post)
             db.session.commit()
             return redirect(url_for('feed', id=current_user.id))
     except TypeError:
         return render_template('addreceta.html')
+    
 
+@app.route('/feed/editartarea/<id>', methods=['GET','POST'])
+@login_required
+def edit(id):
+    try:
+        old_receta = recetas.query.filter_by(id=int(id)).first()
+        new_titulo = request.form['titulo']
+        new_ingredientes = request.form['ingredientes']
+        new_receta = request.form['receta']
+        new_autor = request.form['autor']
+        if new_titulo and new_receta:
+            old_receta.titulo = new_titulo
+            old_receta.ingredientes = new_ingredientes
+            old_receta.receta = new_receta
+            old_receta.autor = new_autor
+            db.session.add(old_receta)
+            db.session.commit()
+            return redirect(url_for('feed', id=current_user.id))
+    except TypeError:
+        return render_template('editar.html')
 
 @app.route('/profile/<int:id>')
 @login_required
@@ -112,6 +146,7 @@ def logout():
      return redirect(url_for('index'))
 
 @app.route('/eliminar/<id>')
+@login_required
 def eliminarreceta(id):
     receta = recetas.query.filter_by(id=int(id)).first()
     if current_user.id == receta.usuario_id:
@@ -119,6 +154,12 @@ def eliminarreceta(id):
         db.session.commit()
         return redirect(url_for('feed', id=current_user.id))
     return redirect(url_for('feed', id=current_user.id))
+
+@app.route('/editar/<id>')
+@login_required
+def editarreceta(id):
+    receta = recetas.query.filter_by(id=int(id)).first()
+    return render_template('editar.html', recetas = receta, id = receta.id)
 
 if __name__ == '__main__':
     with app.app_context():
