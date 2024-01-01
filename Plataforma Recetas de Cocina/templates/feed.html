@@ -16,19 +16,53 @@
                     <ul>
                         <li>
                             <div class="container">
-                                    <p class="fw-bold">Titulo:</p><p>{{i.titulo}}</p>
-                                    <p class="fs-4 fw-bold">Ingredientes:</p><p>{{i.ingredientes}}</p>
-                                    <p class="fs-4 fw-bold">Descripcion Receta:</p><p>{{i.receta}}</p>
-                                    <p class="fw-bold">Autor:</p><p>{{i.autor}}</p>
-                                {% if current_user.id == i.usuario_id %}
-                                <div class="recto">
-                                    <a class="botonrojo" href="/eliminar/{{i.id}}">Borrar Receta</a>
-                                    <a class="botonverde" href="/editar/{{i.id}}">Editar Receta</a>
+                                <p class="fw-bold">Titulo:</p><p>{{i.titulo}}</p>
+                                <p class="fs-4 fw-bold">Ingredientes:</p><p>{{i.ingredientes}}</p>
+                                <p class="fs-4 fw-bold">Descripcion Receta:</p><p>{{i.receta}}</p>
+                                <p class="fw-bold">Autor:</p><p>{{i.autor}}</p>
+                                <div class="like" id="app">
+                                    <p>{ like } Likes</p>  
+                                    {% if current_user.id != i.usuario_id %}                          
+                                            <button v-on:click="increment">♡Like♡</button>
+                                            <button v-on:click="decrement">DisLike D:</button>
+                                    {% endif %}               
+                                    <p class="my-5"> Deja un comentario: </p>
+                                    <textarea type="text" v-model="newCom" placeholder="comentario" class="control2 col-sm-8 col-md-8 col-lg-8 col-xl-8"></textarea>   
+                                    <button v-on:click="nuevocomentario" class="btn btn-outline-success col-sm-4 col-md-4 col-lg-4 col-xl-4 mx-5 mb-5">Nuevo comentario</button>
+                                    <ul>
+                                        <li v-for="comen in comentarios" :key="comen.id">
+                                            <div class="row">
+                                            <div class="col-sm-10 col-md-10 col-lg-10 col-xl-10">
+                                                <p class=""> { comen.usuario_id }  { comen.content }</p>
+                                            </div>
+                                            <div class="col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                                                <button class="btn btn-outline-danger" v-on:click="eliminarcomentario(comen.id)">X</button>
+                                            </div>
+                                        </div>
+                                        </li>
+                                    </ul>
                                 </div>
-                                    {% endif %}
+                                <div class="recto">
+                                {% if current_user.id == i.usuario_id %}
+                                    <a class="botonrojo" href="/eliminar/{{i.id}}">Borrar Receta</a>
+                                    <a class="botonverde" href="/editar/{{i.id}}">Editar Receta</a>    
+                                {% endif %}
+                                </div>
+                                
                             </div>
                         </li>
                     </ul>
                 {% endfor %}
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="/feed/{{current_user.id}}/{page.prev()}" tabindex="-1">Previous</a>
+                      </li>
+                      <li class="page-item"><a class="page-link" href="/feed/{{current_user.id}}/{page}">{{page}}</a></li>
+                      <li class="page-item">
+                        <a class="page-link" href="/feed/{{current_user.id}}/{page.next()}">Next</a>
+                      </li>
+                    </ul>
+                  </nav>
     </body>
 {% endblock%}

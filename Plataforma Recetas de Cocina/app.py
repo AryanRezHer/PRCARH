@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -26,6 +26,17 @@ class recetas(db.Model):
     ingredientes = db.Column(db.String(200), nullable=False)
     receta = db.Column(db.String(200), nullable=False)
     autor = db.Column(db.String(50), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    receta_id = db.Column(db.Integer, db.ForeignKey('recetas.id'), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    likes = db.Column(db.Integer, default=0)
+
+class comentarios(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(500), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
 @login_manager.user_loader
@@ -95,6 +106,8 @@ def new_receta():
 @login_required
 def feed(id):
     receta = recetas.query.all()
+    #antesdetener vue.js
+    #post_like = Like.query.filter_by(receta_id=recetas.id).first()
     return render_template('feed.html', recetas = receta)
 
 @app.route('/feed/addreceta', methods=['GET','POST'])
@@ -109,9 +122,76 @@ def add():
             post = recetas(titulo=titulo,ingredientes=ingredientes,receta=receta,autor = autor,usuario_id=current_user.id)
             db.session.add(post)
             db.session.commit()
+            post_like = Like(receta_id = post.id, usuario_id=current_user.id)
+            db.session.add(post_like)
+            db.session.commit()
             return redirect(url_for('feed', id=current_user.id))
     except TypeError:
         return render_template('addreceta.html')
+    
+@app.route('/get_likes')
+@login_required
+def get_likes():
+    likes_value = Like.query.filter_by(receta_id=recetas.id).first()
+    data = {'id': likes_value.id ,'receta_id': likes_value.receta_id ,'usuario_id': likes_value.usuario_id, 'likes': likes_value.likes if likes_value else None}
+    return jsonify(data)
+
+@app.route('/getComentarios')
+def dcomentario():
+    try:
+        comentarios_lista = comentarios.query.all()
+        print(comentarios_lista)
+        if comentarios_lista:
+            data = [{'id': comen.id, 'content': comen.content, 'usuario_id': comen.usuario_id} for comen in comentarios_lista]
+            return jsonify(data)
+        else:
+            return jsonify([])
+    except Exception as e:
+        print(f"Error en la función datos(): {str(e)}")
+        return jsonify({"error": "Internal Server Error"})
+
+
+@app.route('/update_likes', methods=['POST'])
+def update_likes():
+    try:
+         # Recibimos la información del cliente
+        rid = request.json.get('receta_id')
+        nlike = Like.query.filter_by(receta_id=rid).first()
+        nlike.likes += 1
+        db.session.commit()   
+        return jsonify({'id': nlike.id ,'receta_id': nlike.receta_id ,'usuario_id': nlike.usuario_id, 'likes': nlike.likes })
+    except Exception as e:
+        print(f"Error en la función actualizar_basede_datos(): {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'})
+    
+@app.route('/update_likes2', methods=['POST'])
+def update_likes2():
+    try:
+         # Recibimos la información del cliente
+        rid = request.json.get('receta_id')
+        nlike = Like.query.filter_by(receta_id=rid).first()
+        nlike.likes -=1
+        db.session.commit()   
+        return jsonify({'id': nlike.id ,'receta_id': nlike.receta_id ,'usuario_id': nlike.usuario_id, 'likes': nlike.likes })
+    except Exception as e:
+        print(f"Error en la función actualizar_basede_datos(): {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'})
+
+@app.route('/update_comentarios', methods=['POST'])
+def update_comen():
+    try:
+         # Recibimos la información del cliente
+        newcomen = request.json.get('comentario')
+        if newcomen:
+            comen = comentarios(content=newcomen,usuario_id=current_user.id)
+            db.session.add(comen)
+            db.session.commit()   
+            return jsonify({'id': comen.id ,'content': comen.content ,'usuario_id': comen.usuario_id})
+        else:
+            return jsonify({'error': 'El comentario no puede estar vacío o contener solo espacios en blanco'})
+    except Exception as e:
+        print(f"Error en la función actualizar_basede_datos(): {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'})
     
 
 @app.route('/feed/editartarea/<id>', methods=['GET','POST'])
@@ -149,12 +229,30 @@ def logout():
 @login_required
 def eliminarreceta(id):
     receta = recetas.query.filter_by(id=int(id)).first()
+    post_like = Like.query.filter_by(receta_id=int(id)).first()           
     if current_user.id == receta.usuario_id:
         db.session.delete(receta)
+        db.session.delete(post_like)
         db.session.commit()
         return redirect(url_for('feed', id=current_user.id))
     return redirect(url_for('feed', id=current_user.id))
 
+@app.route('/eliminarcomentario', methods=['POST'])
+def updatedbelim():
+    try:
+        id = request.json.get('id')
+        if id:
+            coment = comentarios.query.get(id)
+            if coment:
+                db.session.delete(coment)
+                db.session.commit()
+                return jsonify({'message': 'hecho usuario eliminado'})
+            else:
+                return jsonify({'error': 'Usuario no encontrado'})
+    except Exception as e:
+        print(f"Error en la función actualizar_basede_datos(): {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'})
+    
 @app.route('/editar/<id>')
 @login_required
 def editarreceta(id):

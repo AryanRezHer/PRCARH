@@ -14,19 +14,31 @@
         </nav>
         {% if recetas %}
         {% for i in recetas %}
-                <ul>
-                    <li>
-                        <div class="container">
-                            <p>Titulo: {{i.titulo}} </p>
-                            <p>Descripcion: {{i.receta}} </p>
-                            <p>Autor: {{i.autor}}</p>
-                            {% if current_user.id == i.usuario_id %}
-                                <a class="boton" href="/eliminar/{{i.id}}">Borrar Receta</a>
-                            {% endif %}
-                        </div>
-                    </li>
-                </ul>
-            {% endfor %}
+                    <ul>
+                        <li>
+                            <div class="container">
+                                <p class="fw-bold">Titulo:</p><p>{{i.titulo}}</p>
+                                <p class="fs-4 fw-bold">Ingredientes:</p><p>{{i.ingredientes}}</p>
+                                <p class="fs-4 fw-bold">Descripcion Receta:</p><p>{{i.receta}}</p>
+                                <p class="fw-bold">Autor:</p><p>{{i.autor}}</p>
+                                <div class="like">
+                                    <p>{ likes } Likes</p>  
+                                    {% if current_user.id != i.usuario_id %}                          
+                                            <button v-on:click="increment">♡Like♡</button>
+                                            <button v-on:click="decrement">DisLike D:</button>
+                                    {% endif %}               
+                                </div>
+                                <div class="recto">
+                                {% if current_user.id == i.usuario_id %}
+                                    <a class="botonrojo" href="/eliminar/{{i.id}}">Borrar Receta</a>
+                                    <a class="botonverde" href="/editar/{{i.id}}">Editar Receta</a>    
+                                {% endif %}
+                                </div>
+                                
+                            </div>
+                        </li>
+                    </ul>
+                {% endfor %}
             {% else %}
                 <p class="alerta">{{mensaje}}</p>
             {% endif %}
